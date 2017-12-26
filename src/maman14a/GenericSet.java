@@ -25,9 +25,10 @@ public class GenericSet<E> {
      * Combine sets with each other
      * @param set Set to be combined with
      */
-    public void union(ArrayList<E> set) {
-        for(E item : set) {
-            insert(item); // insert items not currently in the set
+    public void union(GenericSet<E> set) {
+        Iterator iterator = set.iterator();
+        while(iterator.hasNext()) {
+            insert((E) iterator.next()); // insert items not currently in the set
         }
     }
     
@@ -35,10 +36,15 @@ public class GenericSet<E> {
      * Intersect sets with each other
      * @param set Set to intersect with
      */
-    public void intersect(ArrayList<E> set) {
+    public void intersect(GenericSet<E> set) {
         ArrayList<E> tempSet = new ArrayList<>();
-        for(E item : set) {
-            if(isMember(item)) { // Add members of both sets
+        Iterator iterator = set.iterator();
+        
+        // Iterate over the set
+        while(iterator.hasNext()) {
+            E item = (E) iterator.next();
+            // Add members of both sets
+            if(isMember(item)) { 
                 tempSet.add(item);
             }
         }
@@ -51,9 +57,12 @@ public class GenericSet<E> {
      * @param set Subset
      * @return true if the given group is a subset, false otherwise
      */
-    public boolean isSubset(ArrayList<E> set) {
-        for(E item : set) {
-            if(!isMember(item)) { // If one item is not a member of the set, return false
+    public boolean isSubset(GenericSet<E> set) {
+
+        Iterator iterator = set.iterator();
+        while(iterator.hasNext()) {
+            // If one item is not a member of the set, return false
+            if(!isMember((E) iterator.next())) { 
                 return false;
             }
         }
@@ -74,22 +83,32 @@ public class GenericSet<E> {
      * Insert an item to the group. If the item is a member of the group,
      * this method will do nothing.
      * @param item Item to insert
+     * @return true on successful insertion, false otherwise
      */
-    public void insert(E item) {
+    public boolean insert(E item) {
+        boolean result = false;
         if(!isMember(item)) {
             this.set.add(item);
+            result = true;
         }
+        
+        return result;
     }
     
     /**
      * Delete an item from the group. If the item is not a member of the group,
      * this method will do nothing.
      * @param item Item to delete
+     * @return true on successful deletion, false otherwise
      */
-    public void delete(E item) {
+    public boolean delete(E item) {
+        boolean result = false;
         if(isMember(item)) {
             this.set.remove(item);
+            result = true;
         }
+        
+        return result;
     }
     
     /**
@@ -103,11 +122,11 @@ public class GenericSet<E> {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("GenericSet{").append("set=");
+        builder.append("{");
         
         // Iterate over the set and append to the result
         for(E item : this.set) {
-            builder.append("\t").append(item);
+            builder.append(item).append(",");
         }
         builder.append("}");
         
