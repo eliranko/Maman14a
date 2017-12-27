@@ -1,5 +1,6 @@
 package maman14a;
 
+import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -10,56 +11,87 @@ public class Maman14a {
     private static final int MAX_RANDOM_VALUE = 100;
     private static final int USER_CUSTOM_SET_SIZE = 2;
     private static final int DEFAULT_USER_INPUT_VALUE = 50;
+    private static final int PERSON_SET_SIZE = 5;
     private static final Random RAND = new Random();
+    
+    // Define the sets
+    private static final GenericSet<Integer> SET1 = new GenericSet<>();
+    private static final GenericSet<Integer> SET2 = new GenericSet<>();
+    private static final GenericSet<Integer> SET3 = new GenericSet<>();
+    private static final GenericSet<Person> PERSON_SET = new GenericSet<>();
+    
     public static void main(String[] args) {
-        // Create sets
-        GenericSet<Integer> set1 = new GenericSet<>();
-        GenericSet<Integer> set2 = new GenericSet<>();
-        GenericSet<Integer> set3 = new GenericSet<>();
-        set1.insert(1);
-        System.out.println(set1.isMember(1));
-        // Fill sets
-        fillSetWithRandomValues(set1);
-        fillSetWithRandomValues(set2);
-        fillSetWithRandomValues(set3);
-        
-        // Print the sets
-        System.out.println("First set = " + set1);
-        System.out.println("Second set = " + set2);
-        System.out.println("Third set = " + set3);
-        
-        // Union of set1 and set2
-        set1.union(set2);
-        System.out.println("Union of the first and second sets, The first set now equals" + 
-                set1);
-        
-        // Intersect set1 with set3
-        set1.intersect(set3);
-        System.out.println("Intersection of the first and third sets, The first set now equals" + 
-                set1);
-        
-        // Get a set from the user
-        GenericSet<Integer> userSet = getSetFromUser();
-        String subsetPrint = isSubset(userSet, set1, set2, set3) ? 
-                " is a subset!"
-                : 
-                " is NOT a subset!";
-        System.out.println("The given user set " + userSet + subsetPrint);
-        
-        // Receive value from user
-        int userValue = receiveValueFromUser();
-        String isMemberPrint = set1.isMember(userValue) ? 
+        fillSets();
+        printSets();
+        unionSets(SET1, SET2);
+        intersectSets(SET1, SET3);
+        receiveSubsetFromUser();
+        receiveValueFromUser();
+        printMinimumPerson(PERSON_SET);
+    }
+      
+    private static void printMinimumPerson(GenericSet<Person> set) {
+        System.out.println("The youngest person in the persons set is: " + 
+                Comparation.getMinItem(set));
+    }
+    
+    private static void receiveValueFromUser() {
+        int userValue = receiveIntegerFromInput();
+        String isMemberPrint = SET1.isMember(userValue) ? 
                 " is a member of the first set"
                 : " is not a member of the first set";
         System.out.println("The given value: " + userValue + isMemberPrint);
         
-        set2.insert(userValue);
+        SET2.insert(userValue);
         System.out.println("After adding " + userValue +
-                " to the second group, the new group is: " + set2);
+                " to the second group, the new group is: " + SET2);
         
-        set3.delete(userValue);
+        SET3.delete(userValue);
         System.out.println("After deleting " + userValue +
-                " from the third group, the new group is: " + set3);
+                " from the third group, the new group is: " + SET3);
+    }
+    
+    private static void receiveSubsetFromUser() {
+        GenericSet<Integer> userSet = receiveSetFromUser();
+        String subsetPrint = isSubset(userSet, SET1, SET2, SET3) ? 
+                " is a subset!"
+                : 
+                " is NOT a subset!";
+        System.out.println("The given user set " + userSet + subsetPrint);
+    }
+    
+    private static void unionSets(GenericSet<Integer> set1, GenericSet<Integer> set2) {
+        System.out.print(set1 + " union " + set2 + " = ");
+        set1.union(set2);
+        System.out.println(set1);
+    }
+    
+    private static void intersectSets(GenericSet<Integer> set1, GenericSet<Integer> set2) {
+        System.out.print(set1 + " intersect " + set2 + " = ");
+        set1.intersect(set2);
+        System.out.println(set1);
+    }
+    
+    private static void printSets() {
+        System.out.println("First set = " + SET1);
+        System.out.println("Second set = " + SET2);
+        System.out.println("Third set = " + SET3);
+        System.out.println("Persons set = " + PERSON_SET);
+    }
+    
+    private static void fillSets() {
+        // Fill integer sets
+        fillSetWithRandomValues(SET1);
+        fillSetWithRandomValues(SET2);
+        fillSetWithRandomValues(SET3);
+        
+        // Fill persons set
+        int id = 1;
+        int age = 1;
+        String name = "Person";
+        for(int i = 0; i < PERSON_SET_SIZE; i++) {
+            PERSON_SET.insert(new Person(id + i, name + i, age + i));
+        }
     }
     
     private static void fillSetWithRandomValues(GenericSet<Integer> set) {
@@ -77,18 +109,16 @@ public class Maman14a {
                 + MIN_RANDOM_VALUE; // Get random int between MIN-MAX (including)
     }
     
-    private static GenericSet<Integer> getSetFromUser() {
+    private static GenericSet<Integer> receiveSetFromUser() {
+        System.out.println("Please create a custom set:");
+        ArrayList<Integer> numbers = new ArrayList<>(USER_CUSTOM_SET_SIZE);
+        
         // Receive numbers from user
-        System.out.println("Please enter two numbers to create a custom set:");
-        int number1 = receiveValueFromUser();
-        int number2 = receiveValueFromUser();
+        for(int i = 0; i < USER_CUSTOM_SET_SIZE; i++) {
+            numbers.add(receiveIntegerFromInput());
+        }
         
-        // Create set
-        GenericSet<Integer> set = new GenericSet<>();
-        set.insert(number1);
-        set.insert(number2);
-        
-        return set;
+        return new GenericSet<Integer>(numbers);
     }
     
     private static boolean isSubset(GenericSet<Integer> set, GenericSet<Integer>... sets) {
@@ -103,7 +133,7 @@ public class Maman14a {
         return false;
     }
     
-    private static int receiveValueFromUser() {
+    private static int receiveIntegerFromInput() {
         System.out.println("Please enter a number:");
         Scanner scanner = new Scanner(System.in);
         String number = scanner.nextLine();
